@@ -1,0 +1,101 @@
+1) create documents folder inside public folder & add 1.pdf into it.
+Now below route will trigger download of file 1.pdf & name of downloaded file will be 'gunicorn.pdf'
+
+router.get('/doc', function (req, res) {
+  res.download('public/documents/1.pdf', 'gunicorn.pdf');
+})
+
+
+2) how can we serve static json.
+
+        router.get('/ddlg', function (req, res) {
+        var staticJson = {
+            'movie': 'Dilwale Dulhania Le Jayenge',
+            'songs': [
+            'Mere Khwabon Mein',
+            'Mehndi Laga Ke Rakhna',
+            'Ruk Ja O Dil Deewane',
+            'Ho Gaya Hai Tujhko To Pyar Sajna',
+            'Zara Sa Jhoom Loon Main',
+            'Tujhe Dekha To',
+            'Ghar Aaja Pardesi'
+            ]
+        };
+        res.send(staticJson);
+        })
+        
+        or we can also do same thing with 'res.json'.
+
+        router.get('/ddlg', function (req, res) {
+        var staticJson = {
+            'movie': 'Dilwale Dulhania Le Jayenge',
+            'songs': [
+            'Mere Khwabon Mein',
+            'Mehndi Laga Ke Rakhna',
+            'Ruk Ja O Dil Deewane',
+            'Ho Gaya Hai Tujhko To Pyar Sajna',
+            'Zara Sa Jhoom Loon Main',
+            'Tujhe Dekha To',
+            'Ghar Aaja Pardesi'
+            ]
+        };
+        
+        res.json(staticJson);
+        })
+
+
+3) how to  serve inline html
+
+    router.get('/inlinehtml', function (req, res) {
+        res.send('<p>Inline HTML</p>');
+    })
+
+    res.send is not specifically telling about content type but content type get inferred from content itself.
+
+4) attempt to send plain text  'ddlg|15-02-2018|10:00,14:00,17:00' resulted in undesired content type text/html so we are specifically mentioning content type as 'text/plain'
+
+    router.get('/ddlg/show', function (req, res) {
+          res.header("Content-Type", "text/plain");
+          res.send('ddlg|15-02-2018|10:00,14:00,17:00');
+    })    
+
+5) sending HTTP status code :
+     Please see list of http status code at https://en.wikipedia.org/wiki/List_of_HTTP_status_codes .Here are some 
+        201 Created
+        301 Moved Permanently
+        404 Not Found
+        502 Bad Gateway
+        400 Bad Request    
+
+        With Valid HTTP status code lets try to use 'res.sendStatus' method.
+
+            router.post('/createmodel', function (req, res) {
+                    res.sendStatus(201);
+            })
+        
+            res.sendStatus(201) is same as res.status(201).send('201').
+
+           if we do 
+                res.status(201).send('200')  
+           then status code will be 200 & body will be 200. 
+
+           on the same line 
+                res.status(400).send('Bad Request');
+           will send status code 400 & request body will contain 'Bad Request',this text can be replaced by any text.
+           e.g. res.status(400).send('Bad Request,aborted');     
+
+        but for invalid status code 2000
+
+            router.get('/createmodel', function (req, res) {
+                res.sendStatus(2000); 
+            })
+                            or
+            router.get('/createmodel', function (req, res) {
+                res.status(2000).send('2000') 
+            })
+        not able to retreive response irrespective of 'GET' or 'POST'
+        
+
+
+                        
+                

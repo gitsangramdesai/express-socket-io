@@ -1,0 +1,139 @@
+Use of regular expression in Express.js Routing Pattern:
+
+Routing is way of determining how an application responds to a client request to a particular endpoint. 
+
+
+Route definition has following structure:
+
+	app.METHOD(PATH, HANDLER)
+
+Here
+
+    app is an instance of express.
+    METHOD is an HTTP request method, in lowercase.(get,post,put,delete)
+    PATH is a path on the server.This route paths can be strings, string patterns, or regular expressions.
+    HANDLER is the function executed when the route is matched.
+
+Consider following simple example
+			app.get('/', function (req, res) {
+				res.send('Hello World!')
+			})
+   here 
+			function (req, res) {
+				res.send('Hello World!')
+			}
+	is handler.'get' is http method & '/' is path on server to match with.
+
+
+Each route can have one or more handler functions, which are executed when the route is matched.
+
+a) consider following routing
+	router.get('/ab?cd', function (req, res) {
+	  res.send('ab?cd')
+	})
+
+	'?' in regular expression stands for once or none.Means 'b' can occurs once or will not occur at all at specified place
+
+	this route will match with following URL
+		1) http://localhost:3000/abcd
+		2) http://localhost:3000/acd
+	
+	will not match
+		1)http://localhost:3000/abccd
+		2)http://localhost:3000/abbd
+
+b) consider following routing
+		router.get('/pq+rs', function (req, res) {
+			res.send('pq+rs')
+		})
+
+	'+' in regular expression stands for atleast once or more,means q can occurs atleast once or more.
+
+	this route will match with following url
+		1)http://localhost:3000/pqrs
+		2)http://localhost:3000/pqqrs
+		3)http://localhost:3000/pqqqrs
+	
+	will not match with 
+		1) http://localhost:3000/prs
+		2) http://localhost:3000/pqrrs
+		3) http://localhost:3000/pqers
+		4) http://localhost:3000/pqs
+
+
+c) consider following route		
+
+		router.get('/lm*no', function (req, res) {
+			res.send('lm*no')
+		})
+
+	'*' stands for zero or more.so '*' can be replaced by any valid character group or not replaced at all.
+
+		matches 
+			1) http://localhost:3000/lmno
+			2) http://localhost:3000/lmxyzno
+
+		will not match 
+			1)http://localhost:3000/lmo	
+			2)http://localhost:3000/lno
+
+d) consider following route 
+
+	router.get('/xy(zw)?e', function (req, res) {
+		res.send('xy(zw)?e')
+	})
+   
+	this says character group 'zw' can occur once or never.
+
+	matches 
+		1) http://localhost:3000/xyzwe
+		2) http://localhost:3000/xye
+
+	will not match 
+		1) http://localhost:3000/xyzwzwe
+
+e) we can pass parameter from PATH.if we prepend ':' then express knows its should be treated at URL parameter.All such URL param are available in req.params  collection.
+		
+		router.get('/movie/:movieId/song/:songId', function (req, res) {
+			res.send(req.params)
+		})
+
+	Request:
+		http://localhost:3000/movie/Dilwale%20Dulhania%20Le%20Jayenge/song/ruk%20ja%20o%20dil%20diwane
+	Response:
+		{
+			"movieId":"Dilwale Dulhania Le Jayenge",
+			"songId":"ruk ja o dil diwane"
+		}
+
+
+Lets add following route just above our route defined in section a.
+
+router.get('/abcd', function (req, res,next) {
+  console.log('abcd');
+  next();
+})		
+
+Now hit http://localhost:3000/abcd
+
+you will observe that on console 'abcd' got printed and on browser seeing 'ab?cd' so it gone through both routes it is matching.order depends upon how which route come first.
+
+Now lets see below route here two function are acting as handler in single route 
+
+		router.get('/movietime', function (req, res, next) {
+				console.log('sms movie time')
+				next()
+		}, function (req, res) {
+				res.send('email movie time')
+		})
+
+		hit http://localhost:3000/movietime
+		on console you can see 
+				sms movie time
+		on browser you can see 
+		    email movie time
+
+		here both function got run in order they placed in route.		
+
+References:		
+	https://expressjs.com/en/guide/routing.html

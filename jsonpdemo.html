@@ -1,0 +1,44 @@
+<html>
+
+<head>
+    <script type="text/javascript">
+        window.onload = function () {
+
+            var id = Math.round(Math.random() * 10000);
+            var cbMethodName = 'cb_' + id;
+            var scriptId = 'sc_' + id;
+
+            window[cbMethodName] = function (data) {
+                document.getElementById('user').innerHTML = data.user;
+            }
+
+            var s = document.createElement('script');
+            s.id = scriptId;
+            s.src = 'http://localhost:3000/data/jsonp?callback=' + cbMethodName;
+            s.type = 'text/javascript';
+
+            try {
+                document.body.appendChild(s);
+            } catch (e) {
+                document.body.appendChild(s);
+            }
+            finally{
+                //document.getElementById(scriptId).remove();
+            }
+        }
+    </script>
+</head>
+
+<body>
+    <h1>JSONP demo</h1>
+    <table>
+        <tr>
+            <td>User:</td>
+            <td>
+                <span id="user"></span>
+            </td>
+        </tr>
+    </table>
+</body>
+
+</html>

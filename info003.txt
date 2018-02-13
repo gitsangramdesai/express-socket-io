@@ -1,0 +1,71 @@
+JSONP stands for padded json response.Express.js can provide jsonp response on similar line to json.Jsonp is used to bypass cross-site scripting restriction buts CORS is way forward.
+Yet lets explore JSONP.
+
+First we will create api that will provide jsonp response.
+
+inside our express route add 
+
+router.get('/data/jsonp', function (req, res) {
+  res.jsonp({ user: 'tobi' });
+})
+
+assuming express.js running on 3000 port,Hit http://localhost:3000/data/jsonp?callback=cb
+
+Expected Output:
+    /**/ typeof cb === 'function' && cb({"user":"tobi"});
+
+
+Lets create an HTML page that consume this jsonp API.Purpose of writing javascript on 'onload' is to let body get loaded before adding script tag via 'appendChild'.
+
+<html>
+
+        <head>
+            <script type="text/javascript">
+                window.onload = function () {
+
+                    var id = Math.round(Math.random() * 10000);
+                    var cbMethodName = 'cb_' + id;
+                    var scriptId = 'sc_' + id;
+
+                    window[cbMethodName] = function (data) {
+                        document.getElementById('user').innerHTML = data.user;
+                    }
+
+                    var s = document.createElement('script');
+                    s.id = scriptId;
+                    s.src = 'http://localhost:3000/data/jsonp?callback=' + cbMethodName;
+                    s.type = 'text/javascript';
+
+                    try {
+                        document.body.appendChild(s);
+                    } catch (e) {
+                        document.body.appendChild(s);
+                    }
+                    finally{
+                        //document.getElementById(scriptId).remove();
+                    }
+                }
+            </script>
+        </head>
+
+        <body>
+            <h1>JSONP demo</h1>
+            <table>
+                <tr>
+                    <td>User:</td>
+                    <td>
+                        <span id="user"></span>
+                    </td>
+                </tr>
+            </table>
+        </body>
+
+        </html>
+
+Here in our html page we are giving method name & scriptid a random name to avoid browser caching.
+
+     Basically our html page have a javascript method that  represent data into our html.
+invocation of this javascript function triggered by jsonp api call.whatever value of query parameter 'callback' passed in javascript function in
+    'http://localhost:3000/data/jsonp?callback=' + cbMethodName;
+
+function of same name invoked from jsonp api call.That call will populate our span with provided user value.
